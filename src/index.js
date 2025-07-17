@@ -52,6 +52,9 @@ io.on("connection", socket => {
 
   socket.on("sendLocation", (coords, callback) => {
     const user = getUser(socket.id);
+    if(coords.latitude>10&coords.longitude>10){
+      console.log("Latitude and Longitude both greater than 10");
+    }
     io.to(user.room).emit("locationMessage", generateLocationMessage(user.username, `https://www.google.com/maps?q=${coords.latitude},${coords.longitude}`));
     callback();
   });
