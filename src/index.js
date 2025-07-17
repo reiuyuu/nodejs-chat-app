@@ -17,11 +17,8 @@ const publicDirectoryPath = path.join(__dirname, "../public");
 
 app.use(express.static(publicDirectoryPath));
 
-console.log("haha");
-
 io.on("connection", socket => {
   console.log("New WebSocket connection");
-
   socket.on("join", (options, callback) => {
     const { error, user } = addUser({ id: socket.id, ...options });
     if (error) {
@@ -40,6 +37,7 @@ io.on("connection", socket => {
     }
   });
 
+  console.log("haha2");
   socket.on("sendMessage", (message, callback) => {
     const user = getUser(socket.id);
     const filter = new Filter();
@@ -54,6 +52,7 @@ io.on("connection", socket => {
     }
   });
 
+  console.log("haha3");
   socket.on("sendLocation", (coords, callback) => {
     const user = getUser(socket.id);
     if(coords.latitude>10&coords.latitude<50&coords.longitude<50&coords.longitude>10){
@@ -63,6 +62,7 @@ io.on("connection", socket => {
     callback();
   });
 
+  console.log("haha4");
   socket.on("disconnect", () => {
     const user = removeUser(socket.id);
 
@@ -70,7 +70,7 @@ io.on("connection", socket => {
       io.to(user.room).emit("message", generateMessage("Admin", `${user.username} has left!`));
       io.to(user.room).emit("roomData", {
         room: user.room,
-        users: getUsersInRoom(user.room)
+        users: getUsersInRoom(user.room),
       });
     }
   });
