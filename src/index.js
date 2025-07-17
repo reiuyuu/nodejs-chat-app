@@ -77,15 +77,6 @@ io.on("connection", socket => {
     callback();
   });
 
-    // 2. use filter + addWords to clean the message
-    filter.addWords(...customWords);
-    const cleanMessage = filter.clean(message);
-
-    // 3. send the cleaned message
-    io.to(user.room).emit("message", generateMessage(user.username, cleanMessage));
-    callback();
-  });
-
   console.log("haha3");
   socket.on("sendLocation", (coords, callback) => {
     const user = getUser(socket.id);
