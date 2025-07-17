@@ -15,6 +15,27 @@ require("dotenv").config();
 const port = process.env.PORT || 3000;
 const publicDirectoryPath = path.join(__dirname, "../public");
 
+const customWords = [
+  // Common English spellings
+  "HSBC", "hsbc", "Hsbc", "HSBc", "HSbC", "hSbC", "hSBC", "HsbC", "hSbC",
+  // Concatenated and variants
+  "hsbcbank", "HSBCBANK", "hsbcgroup", "HSBCGROUP",
+  // Chinese names
+  "汇丰", "汇丰银行", "滙豐", "滙豐銀行",
+  // English + Chinese
+  "hsbc银行", "HSBC银行", "hsbc集團", "HSBC集團",
+  // Pinyin
+  "huifeng", "huifengyinhang",
+  // Space separated
+  "H S B C", "h s b c", "H s b c", "h S B C",
+  // Symbol separated
+  "H-S-B-C", "h-s-b-c", "H_S_B_C", "h_s_b_c", "H.S.B.C", "h.s.b.c",
+  // Other common combinations
+  "汇丰bank", "滙豐bank", "huifengbank", "huifeng银行",
+  // Variants with symbols/numbers
+  "h$bc", "h5bc", "h5bC", "h$bc银行"
+];
+
 app.use(express.static(publicDirectoryPath));
 
 io.on("connection", socket => {
@@ -40,14 +61,20 @@ io.on("connection", socket => {
   console.log("haha2");
   socket.on("sendMessage", (message, callback) => {
     const user = getUser(socket.id);
-    const filter = new Filter();
 
+    // 1. use filter to check if the message is profane
+    const filter = new Filter();
     if (filter.isProfane(message)) {
       return callback("Profanity is not allowed!");
-    } else {
-      io.to(user.room).emit("message", generateMessage(user.username, message));
-      callback();
     }
+
+    // 2. use filter + addWords to clean the message
+    filter.addWords(...customWords);
+    const cleanMessage = filter.clean(message);
+
+    // 3. send the cleaned message
+    io.to(user.room).emit("message", generateMessage(user.username, cleanMessage));
+    callback();
   });
 
   console.log("haha3");
