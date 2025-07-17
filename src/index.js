@@ -41,6 +41,7 @@ app.use(express.static(publicDirectoryPath));
 io.on("connection", socket => {
   console.log("New WebSocket connection");
   socket.on("join", (options, callback) => {
+    console.log(`[socket.on] join: socket.id=${socket.id}, options=`, options);
     const { error, user } = addUser({ id: socket.id, ...options });
     if (error) {
       return callback(error);
@@ -58,9 +59,9 @@ io.on("connection", socket => {
     }
   });
 
-  console.log("haha2");
   socket.on("sendMessage", (message, callback) => {
     const user = getUser(socket.id);
+    console.log(`[socket.on] sendMessage: socket.id=${socket.id}, user=`, user, ", message=", message);
 
     // 1. use filter to check if the message is profane
     const filter = new Filter();
@@ -77,19 +78,22 @@ io.on("connection", socket => {
     callback();
   });
 
-  console.log("haha3");
   socket.on("sendLocation", (coords, callback) => {
     const user = getUser(socket.id);
-    if(coords.latitude>3&coords.latitude<53&coords.longitude>73&coords.longitude<135){
+    const { latitude, longitude } = coords;
+    console.log(`[socket.on] sendLocation: socket.id=${socket.id}, user=`, user, ", coords=", coords);
+
+    if(latitude > 3 && latitude < 53 && longitude > 73 && longitude < 135){
       console.log("u are accessing from China");
     }
-    io.to(user.room).emit("locationMessage", generateLocationMessage(user.username, `https://www.google.com/maps?q=${coords.latitude},${coords.longitude}`));
+
+    io.to(user.room).emit("locationMessage", generateLocationMessage(user.username, `https://www.google.com/maps?q=${latitude},${longitude}`));
     callback();
   });
 
-  console.log("haha4");
   socket.on("disconnect", () => {
     const user = removeUser(socket.id);
+    console.log(`[socket.on] disconnect: socket.id=${socket.id}, user=`, user);
 
     if (user) {
       io.to(user.room).emit("message", generateMessage("Admin", `${user.username} has left!`));
