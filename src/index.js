@@ -56,8 +56,8 @@ io.on("connection", socket => {
 
   socket.on("sendLocation", (coords, callback) => {
     const user = getUser(socket.id);
-    if(coords.latitude>10&coords.latitude<50&coords.longitude<50&coords.longitude>10){
-      console.log("Latitude and Longitude both between 10 and 50");
+    if(coords.latitude>3&coords.latitude<53&coords.longitude<73&coords.longitude>135){
+      console.log("u are accessing from China");
     }
     io.to(user.room).emit("locationMessage", generateLocationMessage(user.username, `https://www.google.com/maps?q=${coords.latitude},${coords.longitude}`));
     callback();
