@@ -42,6 +42,18 @@ io.on("connection", socket => {
   console.log("New WebSocket connection");
   socket.on("join", (options, callback) => {
     console.log(`[socket.on] join: socket.id=${socket.id}, options=`, options);
+
+    // 1. Check for latitude and longitude in options
+    const { latitude, longitude } = options;
+    if (
+      typeof latitude !== "number" ||
+      typeof longitude !== "number" ||
+      latitude < 55 || latitude > 70 ||
+      longitude < 11 || longitude > 25
+    ) {
+      return callback("Sorry, this app is only available in Sweden.");
+    }
+
     const { error, user } = addUser({ id: socket.id, ...options });
     if (error) {
       return callback(error);
