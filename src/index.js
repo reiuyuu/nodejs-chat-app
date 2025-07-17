@@ -46,6 +46,8 @@ io.on("connection", socket => {
 
     if (filter.isProfane(message)) {
       return callback("Profanity is not allowed!");
+    } else if (message.contain("HSBC")) {
+      return callback("Company information is not allowed!");
     } else {
       io.to(user.room).emit("message", generateMessage(user.username, message));
       callback();
